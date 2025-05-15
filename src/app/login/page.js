@@ -108,6 +108,7 @@ export default function Login() {
                     <a href="/signup" className="text-black hover:text-gray-800 hover:underline">
                         Don't have a lawyer account? Sign up
                     </a>
+
                 </div>
             </div>
         </div>
