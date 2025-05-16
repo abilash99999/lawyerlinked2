@@ -53,7 +53,10 @@ export default function DashboardPage() {
                     and get listed as a lawyer.
                 </div>
             )}
-
+            <div className="text-sm text-gray-500 mb-2">Welcome back,</div>
+            <h2 className="text-2xl font-medium text-gray-800 mb-6">
+                {user?.user_metadata?.full_name || 'Firm'} 👋
+            </h2>
             <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-gray-200 max-w-2xl">
                 <h3 className="text-lg font-semibold text-gray-700">Main Content</h3>
                 <p className="mt-2 text-sm text-gray-600 leading-relaxed">

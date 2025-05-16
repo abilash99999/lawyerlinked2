@@ -39,10 +39,10 @@ export default function PostJobPage() {
         setLoading(true);
         setErrorMessage('');
 
-        // Step 1: Check if firm exists for the logged-in user
+        // Step 1: Check if firm exists for the logged-in user and get its ID
         const { data: firmData, error: firmError } = await supabase
             .from('firm')
-            .select('name, city')
+            .select('id, name, city')
             .eq('email', userEmail)
             .single();
 
@@ -52,7 +52,7 @@ export default function PostJobPage() {
             return;
         }
 
-        // Step 2: Insert job with firm_name and city
+        // Step 2: Insert job with firm_id
         const { error: jobError } = await supabase.from('job').insert([
             {
                 name: jobName,
@@ -60,8 +60,7 @@ export default function PostJobPage() {
                 about: description,
                 email: userEmail,
                 type,
-                firm_name: firmData.name,
-                city: firmData.city,
+                firm_id: firmData.id,
             },
         ]);
 
