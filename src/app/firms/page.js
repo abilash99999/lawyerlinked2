@@ -6,6 +6,8 @@ import { createClient } from '@supabase/supabase-js';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ReactSelect from 'react-select';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -110,22 +112,23 @@ export default function FirmsPage() {
                                 onClick={() => router.push(`/firms/${firm.id}`)}
                             >
                                 <div className="flex flex-col items-center">
-                                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-300 mb-4">
-                                        <Image
-                                            src={firm.image || '/default-avatar.png'}
+                                    <Avatar className="w-24 h-24 mb-4 rounded-md ">
+                                        <AvatarImage
+                                            src={firm.image || '/corporation.png'}
                                             alt={firm.name}
-                                            width={96}
-                                            height={96}
                                             className="object-cover"
-                                            unoptimized={false}
                                         />
-                                    </div>
+                                        <AvatarFallback>
+                                            {firm.name?.charAt(0).toUpperCase() || "F"}
+                                        </AvatarFallback>
+                                    </Avatar>
                                     <h3 className="text-lg font-semibold text-center mb-1 truncate w-full">{firm.name}</h3>
                                     <p className="text-sm text-gray-600 text-center mb-2 truncate w-full">
                                         {firm.city}, {firm.state}
                                     </p>
                                 </div>
                             </div>
+
                         ))}
                     </div>
                 )}
