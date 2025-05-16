@@ -16,6 +16,7 @@ export default function JobDetailPage() {
     const { id } = useParams();
     const [job, setJob] = useState(null);
     const [userEmail, setUserEmail] = useState('');
+    const [lawyerId, setLawyerId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [alreadyApplied, setAlreadyApplied] = useState(false);
     const [applying, setApplying] = useState(false);
@@ -63,7 +64,18 @@ export default function JobDetailPage() {
                 candidates = candidatesRaw;
             }
 
-            setAlreadyApplied(candidates.includes(email));
+            // Check lawyer table to get ID
+            const { data: lawyerData, error: lawyerError } = await supabase
+                .from('lawyer')
+                .select('id')
+                .eq('email', email)
+                .single();
+
+            if (!lawyerError && lawyerData) {
+                setLawyerId(lawyerData.id);
+                setAlreadyApplied(candidates.includes(lawyerData.id));
+            }
+
             setJob({ ...jobData, candidate: candidates });
             setLoading(false);
         };
@@ -74,27 +86,29 @@ export default function JobDetailPage() {
     const handleApply = async () => {
         setApplying(true);
 
+        // Check lawyer profile
         const { data: lawyerData, error: lawyerError } = await supabase
             .from('lawyer')
-            .select('*')
+            .select('id')
             .eq('email', userEmail)
             .single();
 
         if (lawyerError || !lawyerData) {
-            alert('Only registered lawyers can apply for this job.');
+            alert('Please complete your lawyer profile before applying.');
             setApplying(false);
             return;
         }
 
+        const lawyerId = lawyerData.id;
         const currentCandidates = Array.isArray(job.candidate) ? job.candidate : [];
 
-        if (currentCandidates.includes(userEmail)) {
+        if (currentCandidates.includes(lawyerId)) {
             setAlreadyApplied(true);
             setApplying(false);
             return;
         }
 
-        const updatedCandidates = [...currentCandidates, userEmail];
+        const updatedCandidates = [...currentCandidates, lawyerId];
 
         const { error: updateError } = await supabase
             .from('job')
@@ -133,28 +147,22 @@ export default function JobDetailPage() {
                 <h1 className="text-2xl font-bold text-gray-800">{job.name}</h1>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
-
                 <span className="font-medium text-gray-700">Firm:</span> {job.firm_name}
             </div>
 
             <div className="flex items-center gap-2 text-sm text-gray-600">
-
                 <span className="font-medium text-gray-700">City:</span> {job.city}
             </div>
 
-
             <div className="flex items-center gap-2 text-sm text-gray-600">
                 <span className="font-medium text-gray-700">About:</span> {job.about}
-
             </div>
 
             <div className="flex items-center gap-2 text-sm text-gray-600">
-
                 <span className="font-medium text-gray-700">Experience:</span> {job.experience}
             </div>
 
             <div className="flex items-center gap-2 text-sm text-gray-600">
-
                 <span className="font-medium text-gray-700">Type:</span> {job.type}
             </div>
 

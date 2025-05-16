@@ -12,6 +12,7 @@ export default function PostJobPage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [userEmail, setUserEmail] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const router = useRouter();
 
@@ -24,7 +25,7 @@ export default function PostJobPage() {
 
             if (error || !user) {
                 alert('You must be logged in to post a job.');
-                router.push('/login'); // or redirect to your login page
+                router.push('/login');
             } else {
                 setUserEmail(user.email);
             }
@@ -36,21 +37,38 @@ export default function PostJobPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setErrorMessage('');
 
-        const { error } = await supabase.from('job').insert([
+        // Step 1: Check if firm exists for the logged-in user
+        const { data: firmData, error: firmError } = await supabase
+            .from('firm')
+            .select('name, city')
+            .eq('email', userEmail)
+            .single();
+
+        if (firmError || !firmData) {
+            setLoading(false);
+            setErrorMessage('Please complete your firm profile before posting a job.');
+            return;
+        }
+
+        // Step 2: Insert job with firm_name and city
+        const { error: jobError } = await supabase.from('job').insert([
             {
                 name: jobName,
                 experience: parseInt(experience),
                 about: description,
                 email: userEmail,
                 type,
+                firm_name: firmData.name,
+                city: firmData.city,
             },
         ]);
 
         setLoading(false);
 
-        if (error) {
-            alert('Failed to post job: ' + error.message);
+        if (jobError) {
+            setErrorMessage('Failed to post job: ' + jobError.message);
         } else {
             setSuccess(true);
             setTimeout(() => router.push('/dashboard-firm'), 2000);
@@ -58,8 +76,8 @@ export default function PostJobPage() {
     };
 
     return (
-        <div className="text-foreground p-4  flex flex-col  font-[family-name:var(--font-geist-sans)]">
-            <h3 className="text-4xl font-bold  mb-4">Post a Job for a Lawyer</h3>
+        <div className="text-foreground p-4 flex flex-col font-[family-name:var(--font-geist-sans)]">
+            <h3 className="text-4xl font-bold mb-4">Post a Job for a Lawyer</h3>
             <form
                 onSubmit={handleSubmit}
                 className="w-full max-w-xl bg-white dark:bg-black shadow-xl rounded-2xl p-8 flex flex-col gap-6 border border-gray-300 dark:border-gray-700"
@@ -122,6 +140,10 @@ export default function PostJobPage() {
                 >
                     {loading ? 'Submitting...' : 'Post Job'}
                 </button>
+
+                {errorMessage && (
+                    <p className="text-red-600 dark:text-red-400 text-sm">{errorMessage}</p>
+                )}
 
                 {success && (
                     <p className="text-green-600 dark:text-green-400 text-sm">

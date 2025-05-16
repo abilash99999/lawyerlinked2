@@ -64,7 +64,7 @@ export default function Home() {
         </div>
 
         <section className="w-full">
-          <h2 className="text-2xl font-semibold text-[#0F1C3F] mb-6 text-center">
+          <h2 className="text-2xl font-semibold text-[#1A4D8F] mb-6 text-center">
             Jobs Near You
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

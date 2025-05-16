@@ -84,7 +84,7 @@ export default function EditJobPage() {
     if (loading) return <div>Loading job details...</div>;
 
     return (
-        <div className="max-w-xl mx-auto p-6">
+        <div className="max-w-xl  p-6">
             <h2 className="text-2xl font-bold mb-6">Edit Job</h2>
 
             {error && <div className="mb-4 text-red-600 font-medium">{error}</div>}

@@ -52,7 +52,7 @@ export default function Header() {
             <div className="flex items-center gap-4 pl-4">
                 <Link href="/" className="flex items-center gap-4">
                     <Image src="/legislation.png" width={50} height={50} alt="LawyerLinked Logo" />
-                    <h1 className="text-2xl font-bold hidden sm:block">LawyerLinked</h1>
+                    <h1 className="text-2xl font-bold text-[#1A4D8F] hidden sm:block">LawyerLinked</h1>
                 </Link>
             </div>
 
@@ -128,9 +128,6 @@ export default function Header() {
                                 <DropdownMenuContent align="end" className="w-48">
                                     <DropdownMenuItem onClick={() => router.push("/login")}>
                                         <User className="w-4 h-4 mr-2" /> Login as Lawyer
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => router.push("/login-client")}>
-                                        <User className="w-4 h-4 mr-2" /> Login as Client
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => router.push("/login-firm")}>
                                         <Building2 className="w-4 h-4 mr-2" /> Login as Firm

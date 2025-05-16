@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../../../../../lib/supabaseClient';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function JobDetailsPage() {
     const params = useParams();
@@ -30,13 +31,13 @@ export default function JobDetailsPage() {
 
             setJob(jobData);
 
-            const candidateEmails = jobData?.candidate || [];
+            const candidateIds = jobData?.candidate || [];
 
-            if (candidateEmails.length > 0) {
+            if (candidateIds.length > 0) {
                 const { data: lawyerData, error: lawyerError } = await supabase
                     .from('lawyer')
-                    .select('name, description, experience, state, city, street, email, mobile_number, case_types')
-                    .in('email', candidateEmails);
+                    .select('id, name, description, experience, state, city, street, email, mobile_number, case_types, image')
+                    .in('id', candidateIds);
 
                 if (lawyerError) {
                     console.error('Error fetching lawyers:', lawyerError.message);
@@ -62,7 +63,7 @@ export default function JobDetailsPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
+        <div className="max-w-4xl p-6">
             <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-200 mb-8">
                 <div className="flex justify-between items-start mb-4">
                     <div>
@@ -89,20 +90,29 @@ export default function JobDetailsPage() {
                 ) : (
                     <ul className="space-y-6">
                         {lawyers.map((lawyer, idx) => (
-                            <li key={idx} className="p-4 border rounded-xl">
-                                <h4 className="text-md font-semibold text-gray-800">{lawyer.name}</h4>
-                                <p className="text-sm text-gray-600 mt-1">{lawyer.description}</p>
-                                <div className="mt-2 text-sm text-gray-500 space-x-4">
-                                    <span>Experience: {lawyer.experience}</span>
-                                    <span>Location: {lawyer.street}, {lawyer.city}, {lawyer.state}</span>
-                                </div>
-                                <div className="mt-2 text-sm text-gray-500 space-x-4">
-                                    <span>Email: {lawyer.email}</span>
-                                    <span>Mobile: {lawyer.mobile_number}</span>
-                                </div>
-                                <div className="mt-2 text-sm text-gray-600">
-                                    <span className="font-medium text-gray-700">Case Types:</span>{' '}
-                                    {(lawyer.case_types || []).join(', ')}
+                            <li key={idx} className="p-4 border rounded-xl flex items-start space-x-4">
+                                <Avatar className="w-14 h-14">
+                                    <AvatarImage
+                                        src={lawyer.image || '/default-avatar.png'}
+                                        alt={lawyer.name}
+                                    />
+                                    <AvatarFallback>{lawyer.name?.[0] || '?'}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <h4 className="text-md font-semibold text-gray-800">{lawyer.name}</h4>
+                                    <p className="text-sm text-gray-600 mt-1">{lawyer.description}</p>
+                                    <div className="mt-2 text-sm text-gray-500 space-x-4">
+                                        <span>Experience: {lawyer.experience}</span>
+                                        <span>Location: {lawyer.street}, {lawyer.city}, {lawyer.state}</span>
+                                    </div>
+                                    <div className="mt-2 text-sm text-gray-500 space-x-4">
+                                        <span>Email: {lawyer.email}</span>
+                                        <span>Mobile: {lawyer.mobile_number}</span>
+                                    </div>
+                                    <div className="mt-2 text-sm text-gray-600">
+                                        <span className="font-medium text-gray-700">Case Types:</span>{' '}
+                                        {(lawyer.case_types || []).join(', ')}
+                                    </div>
                                 </div>
                             </li>
                         ))}

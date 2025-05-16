@@ -78,8 +78,8 @@ export default function LawyersPage() {
     return (
         <div className="min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white flex flex-col">
             {/* Filter Bar */}
-            <div className="flex flex-wrap gap-4 px-6 py-4 bg-gray-100 dark:bg-gray-800 rounded">
-                <div className="w-full sm:w-auto sm:min-w-[180px]">
+            <div className="flex flex-wrap gap-4 px-6 py-4 bg-gray-100 dark:bg-neutral-900 rounded">
+                <div className="w-full sm:w-auto sm:min-w-[180px] dark:bg-neutral-900">
                     <ReactSelect
                         options={[{ value: '', label: 'All Cities' }, ...getOptions(lawyers.map(l => l.city))]}
                         value={{ value: filters.city, label: filters.city ? filters.city.charAt(0).toUpperCase() + filters.city.slice(1) : 'All Cities' }}
@@ -142,8 +142,8 @@ export default function LawyersPage() {
             </div>
 
             {/* Results */}
-            <main className="flex-1 px-6 py-6">
-                <h2 className="text-2xl font-semibold mb-6 text-center">Find a Lawyer Near You</h2>
+            <main className="flex-1 px-6 py-6 bg-white dark:bg-black">
+                <h2 className="text-2xl font-semibold text-[#1A4D8F] mb-6 text-center">Find a Lawyer Near You</h2>
 
                 {loading ? (
                     <p className="text-center">Loading lawyers...</p>

@@ -53,7 +53,7 @@ export default function LoginFirm() {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: 'http://localhost:3000/dashboard-firm', // Use your domain in production
+                redirectTo: 'https://lawyerlinked2.vercel.app/dashboard/dashboard-firm', // Use your domain in production
                 queryParams: {
                     prompt: 'select_account',  // Forces Google to always ask for account selection
                 },
