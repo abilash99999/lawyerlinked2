@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import ReactSelect from 'react-select';
 
 const supabase = createClient(
@@ -16,7 +16,6 @@ export default function LawyersPage() {
     const [filteredLawyers, setFilteredLawyers] = useState([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const searchParams = useSearchParams();
 
     const [filters, setFilters] = useState({
         city: '',
@@ -26,18 +25,6 @@ export default function LawyersPage() {
         specialty: '',
         experience: ''
     });
-
-    useEffect(() => {
-        const params = {
-            city: searchParams.get('city')?.toLowerCase() || '',
-            state: searchParams.get('state')?.toLowerCase() || '',
-            gender: searchParams.get('gender')?.toLowerCase() || '',
-            court: searchParams.get('court')?.toLowerCase() || '',
-            specialty: searchParams.get('specialty')?.toLowerCase() || '',
-            experience: searchParams.get('experience') || ''
-        };
-        setFilters(params);
-    }, [searchParams]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -54,8 +41,8 @@ export default function LawyersPage() {
             if (error) {
                 console.error('Error fetching lawyers:', error);
             } else {
-                setLawyers(data);
-                setFilteredLawyers(data);
+                setLawyers(data || []);
+                setFilteredLawyers(data || []);
             }
 
             setLoading(false);
@@ -96,8 +83,9 @@ export default function LawyersPage() {
                     <ReactSelect
                         options={[{ value: '', label: 'All Cities' }, ...getOptions(lawyers.map(l => l.city))]}
                         value={{ value: filters.city, label: filters.city ? filters.city.charAt(0).toUpperCase() + filters.city.slice(1) : 'All Cities' }}
-                        onChange={(selected) => setFilters(prev => ({ ...prev, city: selected.value }))}
+                        onChange={(selected) => setFilters(prev => ({ ...prev, city: selected?.value || '' }))}
                         placeholder="City"
+                        isClearable
                     />
                 </div>
 
@@ -105,8 +93,9 @@ export default function LawyersPage() {
                     <ReactSelect
                         options={[{ value: '', label: 'All States' }, ...getOptions(lawyers.map(l => l.state))]}
                         value={{ value: filters.state, label: filters.state ? filters.state.charAt(0).toUpperCase() + filters.state.slice(1) : 'All States' }}
-                        onChange={(selected) => setFilters(prev => ({ ...prev, state: selected.value }))}
+                        onChange={(selected) => setFilters(prev => ({ ...prev, state: selected?.value || '' }))}
                         placeholder="State"
+                        isClearable
                     />
                 </div>
 
@@ -114,8 +103,9 @@ export default function LawyersPage() {
                     <ReactSelect
                         options={[{ value: '', label: 'All Genders' }, ...getOptions(lawyers.map(l => l.gender))]}
                         value={{ value: filters.gender, label: filters.gender ? filters.gender.charAt(0).toUpperCase() + filters.gender.slice(1) : 'All Genders' }}
-                        onChange={(selected) => setFilters(prev => ({ ...prev, gender: selected.value }))}
+                        onChange={(selected) => setFilters(prev => ({ ...prev, gender: selected?.value || '' }))}
                         placeholder="Gender"
+                        isClearable
                     />
                 </div>
 
@@ -123,8 +113,9 @@ export default function LawyersPage() {
                     <ReactSelect
                         options={[{ value: '', label: 'All Specialties' }, ...getOptions(lawyers.flatMap(l => l.case_types || []))]}
                         value={{ value: filters.specialty, label: filters.specialty ? filters.specialty.charAt(0).toUpperCase() + filters.specialty.slice(1) : 'All Specialties' }}
-                        onChange={(selected) => setFilters(prev => ({ ...prev, specialty: selected.value }))}
+                        onChange={(selected) => setFilters(prev => ({ ...prev, specialty: selected?.value || '' }))}
                         placeholder="Specialty"
+                        isClearable
                     />
                 </div>
 
@@ -132,8 +123,9 @@ export default function LawyersPage() {
                     <ReactSelect
                         options={[{ value: '', label: 'All Courts' }, ...getOptions(lawyers.flatMap(l => l.courts || []))]}
                         value={{ value: filters.court, label: filters.court ? filters.court.charAt(0).toUpperCase() + filters.court.slice(1) : 'All Courts' }}
-                        onChange={(selected) => setFilters(prev => ({ ...prev, court: selected.value }))}
+                        onChange={(selected) => setFilters(prev => ({ ...prev, court: selected?.value || '' }))}
                         placeholder="Court"
+                        isClearable
                     />
                 </div>
 

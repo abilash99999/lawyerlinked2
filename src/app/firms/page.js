@@ -1,11 +1,13 @@
 'use client';
 
+
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import ReactSelect from 'react-select';
 
+// Initialize Supabase client
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -16,25 +18,15 @@ export default function FirmsPage() {
     const [filteredFirms, setFilteredFirms] = useState([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const searchParams = useSearchParams();
 
     const [filters, setFilters] = useState({
         city: '',
         state: ''
     });
 
-    // Populate filters from URL
+    // Fetch firms once on mount
     useEffect(() => {
-        const params = {
-            city: searchParams.get('city')?.toLowerCase() || '',
-            state: searchParams.get('state')?.toLowerCase() || ''
-        };
-        setFilters(params);
-    }, [searchParams]);
-
-    // Fetch firms
-    useEffect(() => {
-        const fetchFirms = async () => {
+        async function fetchFirms() {
             const { data, error } = await supabase
                 .from('firm')
                 .select('id, name, image, city, state')
@@ -42,32 +34,33 @@ export default function FirmsPage() {
 
             if (error) {
                 console.error('Error fetching firms:', error);
+                setFirms([]);
+                setFilteredFirms([]);
             } else {
-                setFirms(data);
-                setFilteredFirms(data);
+                setFirms(data || []);
+                setFilteredFirms(data || []);
             }
 
             setLoading(false);
-        };
+        }
 
         fetchFirms();
     }, []);
 
-    // Filter firms
+    // Filter firms when filters or firms change
     useEffect(() => {
         const filtered = firms.filter(firm => {
-            const matchCity = filters.city === '' || firm.city?.toLowerCase().includes(filters.city);
-            const matchState = filters.state === '' || firm.state?.toLowerCase().includes(filters.state);
+            const matchCity = !filters.city || (firm.city?.toLowerCase().includes(filters.city));
+            const matchState = !filters.state || (firm.state?.toLowerCase().includes(filters.state));
             return matchCity && matchState;
         });
         setFilteredFirms(filtered);
     }, [filters, firms]);
 
-    // Utility for dynamic select options
-    const getOptions = (items) => {
-        return Array.from(new Set(items.map(i => i?.toLowerCase()).filter(Boolean)))
+    // Helper to generate select options from firm data
+    const getOptions = (items) =>
+        Array.from(new Set(items.filter(Boolean).map(i => i.toLowerCase())))
             .map(i => ({ value: i, label: i.charAt(0).toUpperCase() + i.slice(1) }));
-    };
 
     return (
         <div className="min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white flex flex-col">
@@ -76,18 +69,26 @@ export default function FirmsPage() {
                 <div className="w-full sm:w-auto sm:min-w-[180px]">
                     <ReactSelect
                         options={[{ value: '', label: 'All Cities' }, ...getOptions(firms.map(f => f.city))]}
-                        value={{ value: filters.city, label: filters.city ? filters.city.charAt(0).toUpperCase() + filters.city.slice(1) : 'All Cities' }}
-                        onChange={(selected) => setFilters(prev => ({ ...prev, city: selected.value }))}
+                        value={{
+                            value: filters.city,
+                            label: filters.city ? filters.city.charAt(0).toUpperCase() + filters.city.slice(1) : 'All Cities'
+                        }}
+                        onChange={(selected) => setFilters(prev => ({ ...prev, city: selected?.value || '' }))}
                         placeholder="City"
+                        isClearable
                     />
                 </div>
 
                 <div className="w-full sm:w-auto sm:min-w-[180px]">
                     <ReactSelect
                         options={[{ value: '', label: 'All States' }, ...getOptions(firms.map(f => f.state))]}
-                        value={{ value: filters.state, label: filters.state ? filters.state.charAt(0).toUpperCase() + filters.state.slice(1) : 'All States' }}
-                        onChange={(selected) => setFilters(prev => ({ ...prev, state: selected.value }))}
+                        value={{
+                            value: filters.state,
+                            label: filters.state ? filters.state.charAt(0).toUpperCase() + filters.state.slice(1) : 'All States'
+                        }}
+                        onChange={(selected) => setFilters(prev => ({ ...prev, state: selected?.value || '' }))}
                         placeholder="State"
+                        isClearable
                     />
                 </div>
             </div>
@@ -116,6 +117,7 @@ export default function FirmsPage() {
                                             width={96}
                                             height={96}
                                             className="object-cover"
+                                            unoptimized={false}
                                         />
                                     </div>
                                     <h3 className="text-lg font-semibold text-center mb-1 truncate w-full">{firm.name}</h3>
